@@ -1,0 +1,13 @@
+[master]
+k8-master ansible_user=ubuntu
+
+[workers]
+k8-worker1 ansible_user=ubuntu
+k8-worker2 ansible_user=ubuntu
+k8-worker3 ansible_user=ubuntu
+
+[nfs]
+k8-nfs ansible_user=ubuntu
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3

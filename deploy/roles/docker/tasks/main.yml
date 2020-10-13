@@ -1,0 +1,58 @@
+---
+- name: update apt
+  become: true
+  apt:
+    update_cache: yes
+
+- name: install docker prerequistes
+  become: true
+  apt:
+    name: 
+      - apt-transport-https 
+      - ca-certificates 
+      - curl 
+      - gnupg-agent 
+      - software-properties-common
+    state: latest
+
+- name: install docker key
+  become: true
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: add repo
+  become: true
+  command: add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/ubuntu focal stable"
+
+- name: update apt
+  become: true
+  apt:
+    update_cache: yes
+
+- name: install docker
+  become: true
+  apt:
+    name: 
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io
+
+- name: add user to docker
+  become: true
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: use systemd as cgroups
+  become: true
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+
+- name: restart docker
+  become: true
+  service:
+    name: docker
+    state: restarted

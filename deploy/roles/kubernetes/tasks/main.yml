@@ -1,0 +1,65 @@
+- name: install kubernetes key
+  become: true
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: add repo
+  become: true
+  command: add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+
+- name: iptables 6
+  become: true
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: iptables
+  become: true
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: update apt
+  become: true
+  apt:
+    update_cache: yes
+
+- name: install kubernetes
+  become: true
+  apt:
+    name: 
+      - kubeadm
+      - kubectl 
+      - kubelet
+
+- name: Hold kubeadm
+  become: true
+  dpkg_selections:
+    name: kubeadm 
+    selection: hold
+
+- name: Hold kubectl
+  become: true
+  dpkg_selections:
+    name: kubectl 
+    selection: hold
+
+- name: Hold kubelet
+  become: true
+  dpkg_selections:
+    name: kubelet
+    selection: hold
+
+- name: add nfs client
+  become: true
+  apt:
+    name: nfs-common
+  tags:
+    - install

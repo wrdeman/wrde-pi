@@ -1,0 +1,80 @@
+- name: update apt
+  become: true
+  apt:
+    update_cache: yes
+
+- name: instal nfs utils
+  become: true
+  apt:
+    name:
+      - nfs-common
+      - nfs-kernel-server
+
+- name: add mount point
+  become: true
+  file:
+    state: directory
+    path: /srv/
+    owner: root
+    group: root
+    mode: 0777
+
+
+- name: add mount point
+  become: true
+  file:
+    state: directory
+    path: /srv/nfs/
+    owner: root
+    group: root
+    mode: 0777
+
+- shell: blkid | grep -v "system-boot" | sed -n 's/.* UUID=\"\([^\"]*\)\".*/\1/p'
+  register: blkid_out
+
+- name: mount usb
+  become: true
+  mount:
+    path: /srv/nfs
+    src: UUID={{ blkid_out.stdout }}
+    opts: nosuid,ndev,nofail,noatime 0 0
+    fstype: auto
+    state: present
+
+- name: enable rpcbind
+  become: true
+  systemd:
+    name: rpcbind
+    enabled: yes
+
+- name: enable nfs-server
+  become: true
+  systemd:
+    name: nfs-server
+    enabled: yes
+
+- name: start rpc bind
+  become: true
+  systemd:
+    name: rpcbind
+    state: started
+
+- name: start nfs-server
+  become: true
+  systemd:
+    name: nfs-server
+    state: started
+
+- name: open up share
+  become: true
+  lineinfile:
+    path: /etc/exports
+    line: "/srv/nfs    *(rw,sync,no_subtree_check,no_root_squash)"
+
+- name: start nfs-server
+  become: true
+  systemd:
+    name: nfs-server
+    state: restarted
+
+

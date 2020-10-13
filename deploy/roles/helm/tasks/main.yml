@@ -1,0 +1,21 @@
+- name: add helm key
+  become: true
+  apt_key: 
+    url: https://baltocdn.com/helm/signing.asc
+    state: present
+
+- name: add helm repo
+  become: true
+  command: add-apt-repository "deb https://baltocdn.com/helm/stable/debian/ all main"
+
+- name: update apt
+  become: true
+  apt:
+    update_cache: yes
+
+- name: install helm
+  become: true
+  apt:
+    name: 
+      - helm
+ 

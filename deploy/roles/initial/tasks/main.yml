@@ -1,0 +1,10 @@
+- name: add cgroups
+  become: true
+  lineinfile:
+    dest: /boot/firmware/cmdline.txt
+    regexp: '$'
+    line: " cgroup_enable=memory swapaccount=1 cgroup_memory=1 cgroup_enable=cpuset"
+
+- name: reboot to apply cgroups
+  become: true
+  reboot:
